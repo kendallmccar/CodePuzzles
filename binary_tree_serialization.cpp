@@ -49,7 +49,6 @@ public:
             return "";
 
         // reset state in case called multiple times
-        //serialized_vector_.clear();
         data_buffer_.clear();
         current_node_index_ = 0;
 
@@ -57,10 +56,8 @@ public:
         int size = GetTreeSize(root.get());
         // calculate bytes for tree as 4 bytes for each of 3 int32's per each node
         int bytes = 3 * 4 * size;
-        //serialized_vector_.resize(bytes);
         data_buffer_.resize(bytes);
         int32_t* recast_buffer = reinterpret_cast<int32_t*>(&data_buffer_[0]);
-        //int32_t* recast_buffer = reinterpret_cast<int32_t*>(&serialized_vector_[0]);
 
         // traverse in breadth first search
         int array_index = 0; // 1 node index covers 3 array indexes, so tracking seperately
@@ -68,9 +65,7 @@ public:
         while (!node_queue_.empty()) {
             std::unique_ptr<Node> current_node = std::move(node_queue_.front());
             node_queue_.pop();
-            //serialized_vector_.push_back(current_node->value);
-            //serialized_vector_.push_back(ProcessChildNode(std::move(current_node->left)));
-            //serialized_vector_.push_back(ProcessChildNode(std::move(current_node->right)));
+            // add current node to buffer, followed by the planned indices of its two children
             recast_buffer[array_index++] = current_node->value;
             int left_node_index = ProcessChildNode(std::move(current_node->left));
             recast_buffer[array_index++] = left_node_index;
@@ -78,19 +73,12 @@ public:
             recast_buffer[array_index++] = right_node_index;
         }
 
-        // convert from vector
-        //int stringSize = serialized_vector_.size() * 4;
-        //char* chararray = reinterpret_cast<char*>(&serialized_vector_.front());
-        //std::string serialString(chararray, stringSize);
-
         return data_buffer_;
     }
 
 private:
     std::queue<std::unique_ptr<Node>> node_queue_; // queue of nodes to be serialized
     int current_node_index_ = 0; // start with the first node
-    //std::vector<int32_t> serialized_vector_; // make vector array first before converting to string
-    //std::vector<int8_t> serialized_vector_; // data buffer
     std::string data_buffer_; // data buffer
 
     // returns child node index in future serialized string

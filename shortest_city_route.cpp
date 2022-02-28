@@ -116,7 +116,7 @@ private:
     std::vector<Route> complete_routes_;
 };
 
-int main() {
+void TestCityRoute() {
     City a, b, c, d, e;
     a.connected_cities_[&b] = 2;
     a.connected_cities_[&c] = 3;
